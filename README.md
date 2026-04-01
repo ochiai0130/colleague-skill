@@ -49,6 +49,22 @@
 
 ---
 
+### 🌟 同系列项目：[前任.skill](https://github.com/titanwings/ex-skill)
+
+> 根据大家的 issue 反馈，更新了一版 **前任.skill**！现已支持：
+>
+> - **微信聊天记录全自动导入**（Windows / macOS，桌面端登录即可，无需任何配置）
+> - **iMessage 全自动提取**（macOS 用户）
+> - **完整星盘解读**（太阳/月亮/上升/金星/火星/水星 × 12 星座）
+> - **MBTI 16 型 + 认知功能**、九型人格、依恋风格全支持
+> - 支持所有性别认同与关系类型
+>
+> 同事跑了用 **同事.skill**，前任跑了用 **[前任.skill](https://github.com/titanwings/ex-skill)**，赛博永生一条龙 🌟🌟🌟
+>
+> 觉得有意思的话，给两个项目都点个 Star 吧！
+
+---
+
 ## 安装
 
 ### Claude Code
