@@ -1,41 +1,41 @@
 #!/usr/bin/env python3
 """
-飞书自动采集器
+Feishu 自動収集ツール
 
-输入同事姓名，自动：
-  1. 搜索飞书用户，获取 user_id
-  2. 找到与他共同的群聊，拉取他的消息记录
-  3. 拉取私聊消息（需要 user_access_token）
-  4. 搜索他创建/编辑的文档和 Wiki
-  5. 拉取文档内容
-  6. 拉取多维表格（如有）
-  7. 输出统一格式，直接进 create-colleague 分析流程
+同僚の名前を入力すると、自動的に：
+  1. Feishu ユーザーを検索し、user_id を取得
+  2. 共通のグループチャットを見つけ、メッセージ記録を取得
+  3. プライベートチャットメッセージを取得（user_access_token が必要）
+  4. 作成/編集したドキュメントや Wiki を検索
+  5. ドキュメント内容を取得
+  6. マルチディメンションテーブルを取得（存在する場合）
+  7. 統一フォーマットで出力し、create-colleague 分析フローに直接投入
 
-前置：
-  python3 feishu_auto_collector.py --setup   # 配置 App ID / Secret（一次性）
+前提条件：
+  python3 feishu_auto_collector.py --setup   # App ID / Secret を設定（初回のみ）
 
-私聊采集（需额外步骤）：
-  1. 飞书应用开通用户权限：im:message, im:chat
-  2. 获取 OAuth 授权码：
-     浏览器打开: https://open.feishu.cn/open-apis/authen/v1/authorize?app_id={APP_ID}&redirect_uri=http://www.example.com&scope=im:message%20im:chat
-     授权后从地址栏复制 code
-  3. 换取 token：
+プライベートチャット収集（追加手順が必要）：
+  1. Feishu アプリでユーザー権限を有効化：im:message, im:chat
+  2. OAuth 認可コードを取得：
+     ブラウザで開く: https://open.feishu.cn/open-apis/authen/v1/authorize?app_id={APP_ID}&redirect_uri=http://www.example.com&scope=im:message%20im:chat
+     認可後、アドレスバーから code をコピー
+  3. トークンに交換：
      python3 feishu_auto_collector.py --exchange-code {CODE}
-  4. 采集时指定私聊 chat_id：
-     python3 feishu_auto_collector.py --name "张三" --p2p-chat-id oc_xxx
+  4. 収集時にプライベートチャット chat_id を指定：
+     python3 feishu_auto_collector.py --name "張三" --p2p-chat-id oc_xxx
 
-用法：
-  # 群聊采集（原有方式）
-  python3 feishu_auto_collector.py --name "张三" --output-dir ./knowledge/zhangsan
-  python3 feishu_auto_collector.py --name "张三" --msg-limit 1000 --doc-limit 20
+使い方：
+  # グループチャット収集（従来の方法）
+  python3 feishu_auto_collector.py --name "張三" --output-dir ./knowledge/zhangsan
+  python3 feishu_auto_collector.py --name "張三" --msg-limit 1000 --doc-limit 20
 
-  # 私聊采集
-  python3 feishu_auto_collector.py --name "张三" --p2p-chat-id oc_xxx
+  # プライベートチャット収集
+  python3 feishu_auto_collector.py --name "張三" --p2p-chat-id oc_xxx
 
-  # 直接指定 open_id + 私聊（跳过用户搜索）
-  python3 feishu_auto_collector.py --open-id ou_xxx --p2p-chat-id oc_xxx --name "张三"
+  # open_id を直接指定 + プライベートチャット（ユーザー検索をスキップ）
+  python3 feishu_auto_collector.py --open-id ou_xxx --p2p-chat-id oc_xxx --name "張三"
 
-  # 换取 user_access_token
+  # user_access_token に交換
   python3 feishu_auto_collector.py --exchange-code {CODE}
 """
 
@@ -52,7 +52,7 @@ from typing import Optional
 try:
     import requests
 except ImportError:
-    print("错误：请先安装 requests：pip3 install requests", file=sys.stderr)
+    print("エラー：先に requests をインストールしてください：pip3 install requests", file=sys.stderr)
     sys.exit(1)
 
 
@@ -60,11 +60,11 @@ CONFIG_PATH = Path.home() / ".colleague-skill" / "feishu_config.json"
 BASE_URL = "https://open.feishu.cn/open-apis"
 
 
-# ─── 配置 ────────────────────────────────────────────────────────────────────
+# ─── 設定 ────────────────────────────────────────────────────────────────────
 
 def load_config() -> dict:
     if not CONFIG_PATH.exists():
-        print("未找到配置，请先运行：python3 feishu_auto_collector.py --setup", file=sys.stderr)
+        print("設定が見つかりません。先に実行してください：python3 feishu_auto_collector.py --setup", file=sys.stderr)
         sys.exit(1)
     return json.loads(CONFIG_PATH.read_text())
 
@@ -75,35 +75,35 @@ def save_config(config: dict) -> None:
 
 
 def setup_config() -> None:
-    print("=== 飞书自动采集配置 ===\n")
-    print("请前往 https://open.feishu.cn 创建企业自建应用，开通以下权限：")
+    print("=== Feishu 自動収集設定 ===\n")
+    print("https://open.feishu.cn で企業内部アプリを作成し、以下の権限を有効にしてください：")
     print()
-    print("  消息类（应用权限，用于群聊采集）：")
-    print("    im:message:readonly          读取消息")
-    print("    im:chat:readonly             读取群聊信息")
-    print("    im:chat.members:readonly     读取群成员")
+    print("  メッセージ系（アプリ権限、グループチャット収集用）：")
+    print("    im:message:readonly          メッセージ読み取り")
+    print("    im:chat:readonly             グループチャット情報読み取り")
+    print("    im:chat.members:readonly     グループメンバー読み取り")
     print()
-    print("  消息类（用户权限，用于私聊采集）：")
-    print("    im:message                   以用户身份读取/发送消息")
-    print("    im:chat                      以用户身份读取会话列表")
+    print("  メッセージ系（ユーザー権限、プライベートチャット収集用）：")
+    print("    im:message                   ユーザーとしてメッセージの読み取り/送信")
+    print("    im:chat                      ユーザーとして会話リストの読み取り")
     print()
-    print("  用户类：")
-    print("    contact:user.base:readonly       读取用户基本信息")
-    print("    contact:department.base:readonly  遍历部门查找用户（按姓名搜索必需）")
+    print("  ユーザー系：")
+    print("    contact:user.base:readonly       ユーザー基本情報の読み取り")
+    print("    contact:department.base:readonly  部門を辿ってユーザーを検索（名前検索に必須）")
     print()
-    print("  文档类：")
-    print("    docs:doc:readonly            读取文档")
-    print("    wiki:wiki:readonly           读取知识库")
-    print("    drive:drive:readonly         搜索云盘文件")
+    print("  ドキュメント系：")
+    print("    docs:doc:readonly            ドキュメント読み取り")
+    print("    wiki:wiki:readonly           ナレッジベース読み取り")
+    print("    drive:drive:readonly         クラウドドライブファイル検索")
     print()
-    print("  多维表格：")
-    print("    bitable:app:readonly         读取多维表格")
+    print("  マルチディメンションテーブル：")
+    print("    bitable:app:readonly         マルチディメンションテーブル読み取り")
     print()
-    print("  ─── 私聊采集说明 ───")
-    print("  私聊消息必须通过 user_access_token 获取（应用身份无权访问私聊）。")
-    print("  获取方式：OAuth 授权，授权链接格式：")
+    print("  ─── プライベートチャット収集について ───")
+    print("  プライベートチャットメッセージは user_access_token で取得する必要があります（アプリ権限ではアクセス不可）。")
+    print("  取得方法：OAuth 認可、認可リンクの形式：")
     print("    https://open.feishu.cn/open-apis/authen/v1/authorize?app_id={APP_ID}&redirect_uri={REDIRECT}&scope=im:message%20im:chat")
-    print("  授权后从回调 URL 中取 code，用 --exchange-code 换取 token。")
+    print("  認可後、コールバック URL から code を取得し、--exchange-code でトークンに交換してください。")
     print()
 
     app_id = input("App ID (cli_xxx): ").strip()
@@ -111,16 +111,16 @@ def setup_config() -> None:
 
     config = {"app_id": app_id, "app_secret": app_secret}
 
-    print("\n是否配置 user_access_token？（用于私聊消息采集，可跳过）")
-    user_token = input("user_access_token (留空跳过): ").strip()
+    print("\nuser_access_token を設定しますか？（プライベートチャットメッセージ収集用、スキップ可能）")
+    user_token = input("user_access_token (空欄でスキップ): ").strip()
     if user_token:
         config["user_access_token"] = user_token
-    p2p_chat_id = input("私聊 chat_id (留空跳过): ").strip()
+    p2p_chat_id = input("プライベートチャット chat_id (空欄でスキップ): ").strip()
     if p2p_chat_id:
         config["p2p_chat_id"] = p2p_chat_id
 
     save_config(config)
-    print(f"\n✅ 配置已保存到 {CONFIG_PATH}")
+    print(f"\n✅ 設定を {CONFIG_PATH} に保存しました")
 
 
 # ─── Token ───────────────────────────────────────────────────────────────────
@@ -129,7 +129,7 @@ _token_cache: dict = {}
 
 
 def get_tenant_token(config: dict) -> str:
-    """获取 tenant_access_token，带缓存（有效期约 2 小时）"""
+    """tenant_access_token を取得する（キャッシュ付き、有効期間約 2 時間）"""
     now = time.time()
     if _token_cache.get("token") and _token_cache.get("expire", 0) > now + 60:
         return _token_cache["token"]
@@ -141,7 +141,7 @@ def get_tenant_token(config: dict) -> str:
     )
     data = resp.json()
     if data.get("code") != 0:
-        print(f"获取 token 失败：{data}", file=sys.stderr)
+        print(f"トークン取得失敗：{data}", file=sys.stderr)
         sys.exit(1)
 
     token = data["tenant_access_token"]
@@ -179,7 +179,7 @@ def api_post(path: str, body: dict, config: dict, use_user_token: bool = False) 
 
 
 def exchange_code_for_token(code: str, config: dict) -> dict:
-    """用 OAuth 授权码换取 user_access_token"""
+    """OAuth 認可コードを user_access_token に交換する"""
     app_token = get_tenant_token(config)
     resp = requests.post(
         f"{BASE_URL}/authen/v1/oidc/access_token",
@@ -189,23 +189,23 @@ def exchange_code_for_token(code: str, config: dict) -> dict:
     )
     data = resp.json()
     if data.get("code") != 0:
-        print(f"换取 token 失败：{data}", file=sys.stderr)
+        print(f"トークン交換失敗：{data}", file=sys.stderr)
         return {}
     return data.get("data", {})
 
 
-# ─── 用户搜索 ─────────────────────────────────────────────────────────────────
+# ─── ユーザー検索 ─────────────────────────────────────────────────────────────
 
 def _find_user_by_contact(name: str, config: dict) -> Optional[dict]:
-    """通过邮箱或手机号查找用户（使用 tenant_access_token）"""
-    # 判断输入类型
+    """メールアドレスまたは電話番号でユーザーを検索する（tenant_access_token を使用）"""
+    # 入力タイプを判定
     emails, mobiles = [], []
     if "@" in name:
         emails = [name]
     elif name.replace("+", "").replace("-", "").isdigit():
         mobiles = [name]
     else:
-        return None  # 不是邮箱或手机号，跳过
+        return None  # メールアドレスでも電話番号でもない、スキップ
 
     body = {}
     if emails:
@@ -215,31 +215,31 @@ def _find_user_by_contact(name: str, config: dict) -> Optional[dict]:
 
     data = api_post("/contact/v3/users/batch_get_id", body, config)
     if data.get("code") != 0:
-        print(f"  邮箱/手机号查找失败（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
+        print(f"  メールアドレス/電話番号での検索に失敗（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
         return None
 
     user_list = data.get("data", {}).get("user_list", [])
     for item in user_list:
         user_id = item.get("user_id")
         if user_id:
-            # 获取用户详情
+            # ユーザー詳細を取得
             detail = api_get(f"/contact/v3/users/{user_id}", {"user_id_type": "user_id"}, config)
             if detail.get("code") == 0:
                 user_data = detail.get("data", {}).get("user", {})
-                print(f"  找到用户：{user_data.get('name', user_id)}", file=sys.stderr)
+                print(f"  ユーザーを見つけました：{user_data.get('name', user_id)}", file=sys.stderr)
                 return user_data
-            # 如果详情拉不到，返回基本信息
+            # 詳細が取得できない場合、基本情報を返す
             return {"user_id": user_id, "open_id": item.get("open_id", ""), "name": name}
 
     return None
 
 
 def _find_user_by_department(name: str, config: dict) -> Optional[dict]:
-    """遍历部门查找用户（使用 tenant_access_token，需要 contact:department.base:readonly）"""
-    print(f"  通过部门遍历查找 {name} ...", file=sys.stderr)
+    """部門を辿ってユーザーを検索する（tenant_access_token を使用、contact:department.base:readonly が必要）"""
+    print(f"  部門を辿って {name} を検索中 ...", file=sys.stderr)
 
-    # 递归获取所有部门 ID
-    dept_ids = ["0"]  # 0 = 根部门
+    # 全部門 ID を再帰的に取得
+    dept_ids = ["0"]  # 0 = ルート部門
     queue = ["0"]
     while queue:
         parent_id = queue.pop(0)
@@ -250,8 +250,8 @@ def _find_user_by_department(name: str, config: dict) -> Optional[dict]:
         )
         if data.get("code") != 0:
             if parent_id == "0":
-                print(f"  部门遍历失败（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
-                print(f"  请确认已开通 contact:department.base:readonly 权限", file=sys.stderr)
+                print(f"  部門の辿りに失敗（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
+                print(f"  contact:department.base:readonly 権限が有効か確認してください", file=sys.stderr)
                 return None
             continue
 
@@ -262,9 +262,9 @@ def _find_user_by_department(name: str, config: dict) -> Optional[dict]:
                 dept_ids.append(child_id)
                 queue.append(child_id)
 
-    print(f"  共 {len(dept_ids)} 个部门，搜索用户 ...", file=sys.stderr)
+    print(f"  合計 {len(dept_ids)} 部門、ユーザーを検索中 ...", file=sys.stderr)
 
-    # 在每个部门中查找用户
+    # 各部門でユーザーを検索
     matches = []
     for dept_id in dept_ids:
         page_token = None
@@ -289,18 +289,18 @@ def _find_user_by_department(name: str, config: dict) -> Optional[dict]:
             page_token = data.get("data", {}).get("page_token")
 
         if len(matches) >= 10:
-            break  # 够了
+            break  # 十分な数
 
     return _select_user(matches, name)
 
 
 def _select_user(users: list, name: str) -> Optional[dict]:
-    """从候选列表中选择用户"""
+    """候補リストからユーザーを選択する"""
     if not users:
-        print(f"  未找到用户：{name}", file=sys.stderr)
+        print(f"  ユーザーが見つかりません：{name}", file=sys.stderr)
         return None
 
-    # 去重（按 user_id）
+    # 重複排除（user_id ベース）
     seen = set()
     deduped = []
     for u in users:
@@ -313,11 +313,11 @@ def _select_user(users: list, name: str) -> Optional[dict]:
     if len(users) == 1:
         u = users[0]
         dept_ids = u.get("department_ids", [])
-        print(f"  找到用户：{u.get('name')}（部门：{dept_ids[0] if dept_ids else ''}）", file=sys.stderr)
+        print(f"  ユーザーを見つけました：{u.get('name')}（部門：{dept_ids[0] if dept_ids else ''}）", file=sys.stderr)
         return u
 
-    # 多个结果，让用户选择
-    print(f"\n  找到 {len(users)} 个结果，请选择：")
+    # 複数の結果、ユーザーに選択させる
+    print(f"\n  {len(users)} 件の結果が見つかりました。選択してください：")
     for i, u in enumerate(users):
         dept_ids = u.get("department_ids", [])
         dept_str = dept_ids[0] if dept_ids else ""
@@ -325,7 +325,7 @@ def _select_user(users: list, name: str) -> Optional[dict]:
         label = f"{u.get('name', '')} ({en})" if en else u.get("name", "")
         print(f"    [{i+1}] {label}  dept={dept_str}  uid={u.get('user_id', '')}")
 
-    choice = input("\n  选择编号（默认 1）：").strip() or "1"
+    choice = input("\n  番号を選択（デフォルト 1）：").strip() or "1"
     try:
         idx = int(choice) - 1
         return users[idx]
@@ -334,39 +334,39 @@ def _select_user(users: list, name: str) -> Optional[dict]:
 
 
 def find_user(name: str, config: dict) -> Optional[dict]:
-    """搜索飞书用户
+    """Feishu ユーザーを検索する
 
-    策略：
-      1. 如果输入是邮箱/手机号 → 直接用 batch_get_id（最快）
-      2. 否则 → 遍历部门查找（需要 contact:department.base:readonly）
-      3. 如果部门遍历也失败 → 提示用户改用邮箱/手机号
+    戦略：
+      1. 入力がメールアドレス/電話番号の場合 → batch_get_id で直接検索（最速）
+      2. それ以外 → 部門を辿って検索（contact:department.base:readonly が必要）
+      3. 部門の辿りも失敗した場合 → メールアドレス/電話番号の使用を案内
     """
-    print(f"  搜索用户：{name} ...", file=sys.stderr)
+    print(f"  ユーザーを検索中：{name} ...", file=sys.stderr)
 
-    # 方法 1：邮箱/手机号直接查找
+    # 方法 1：メールアドレス/電話番号で直接検索
     user = _find_user_by_contact(name, config)
     if user:
         return user
 
-    # 方法 2：部门遍历
+    # 方法 2：部門辿り
     user = _find_user_by_department(name, config)
     if user:
         return user
 
-    # 都失败
-    print(f"\n  ❌ 未能找到用户 {name}", file=sys.stderr)
-    print(f"  建议：", file=sys.stderr)
-    print(f"    1. 确认已开通 contact:department.base:readonly 权限", file=sys.stderr)
-    print(f"    2. 改用邮箱搜索：--name user@company.com", file=sys.stderr)
-    print(f"    3. 改用手机号搜索：--name +8613800138000", file=sys.stderr)
+    # 全て失敗
+    print(f"\n  ❌ ユーザー {name} が見つかりませんでした", file=sys.stderr)
+    print(f"  提案：", file=sys.stderr)
+    print(f"    1. contact:department.base:readonly 権限が有効か確認してください", file=sys.stderr)
+    print(f"    2. メールアドレスで検索：--name user@company.com", file=sys.stderr)
+    print(f"    3. 電話番号で検索：--name +8613800138000", file=sys.stderr)
     return None
 
 
-# ─── 消息记录 ─────────────────────────────────────────────────────────────────
+# ─── メッセージ記録 ─────────────────────────────────────────────────────────────
 
 def get_chats_with_user(user_open_id: str, config: dict) -> list:
-    """找到 bot 和目标用户共同在的群聊"""
-    print("  获取群聊列表 ...", file=sys.stderr)
+    """bot と対象ユーザーの共通グループチャットを見つける"""
+    print("  グループチャットリストを取得中 ...", file=sys.stderr)
 
     chats = []
     page_token = None
@@ -378,7 +378,7 @@ def get_chats_with_user(user_open_id: str, config: dict) -> list:
 
         data = api_get("/im/v1/chats", params, config)
         if data.get("code") != 0:
-            print(f"  获取群聊失败：{data.get('msg')}", file=sys.stderr)
+            print(f"  グループチャットの取得に失敗：{data.get('msg')}", file=sys.stderr)
             break
 
         items = data.get("data", {}).get("items", [])
@@ -388,9 +388,9 @@ def get_chats_with_user(user_open_id: str, config: dict) -> list:
             break
         page_token = data.get("data", {}).get("page_token")
 
-    print(f"  共 {len(chats)} 个群聊，检查成员 ...", file=sys.stderr)
+    print(f"  合計 {len(chats)} 個のグループチャット、メンバーを確認中 ...", file=sys.stderr)
 
-    # 过滤：目标用户在其中的群
+    # フィルタ：対象ユーザーが参加しているグループ
     result = []
     for chat in chats:
         chat_id = chat.get("chat_id")
@@ -418,7 +418,7 @@ def fetch_messages_from_chat(
     limit: int,
     config: dict,
 ) -> list:
-    """从指定群聊拉取目标用户的消息"""
+    """指定グループチャットから対象ユーザーのメッセージを取得する"""
     messages = []
     page_token = None
 
@@ -489,7 +489,7 @@ def fetch_p2p_messages(
     limit: int,
     config: dict,
 ) -> list:
-    """使用 user_access_token 从私聊会话拉取消息（包含双方所有消息）"""
+    """user_access_token を使用してプライベートチャットからメッセージを取得する（双方の全メッセージを含む）"""
     messages = []
     page_token = None
 
@@ -505,7 +505,7 @@ def fetch_p2p_messages(
 
         data = api_get("/im/v1/messages", params, config, use_user_token=True)
         if data.get("code") != 0:
-            print(f"  拉取私聊消息失败（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
+            print(f"  プライベートチャットメッセージの取得に失敗（code={data.get('code')}）：{data.get('msg')}", file=sys.stderr)
             break
 
         items = data.get("data", {}).get("items", [])
@@ -516,16 +516,16 @@ def fetch_p2p_messages(
             sender = item.get("sender", {})
             sender_id = sender.get("id") or sender.get("open_id", "")
 
-            # 解析消息内容
+            # メッセージ内容を解析
             content_raw = item.get("body", {}).get("content", "")
             try:
                 content_obj = json.loads(content_raw)
                 if isinstance(content_obj, dict):
-                    # 纯文本消息
+                    # プレーンテキストメッセージ
                     if "text" in content_obj:
                         content = content_obj["text"]
                     else:
-                        # 富文本消息
+                        # リッチテキストメッセージ
                         text_parts = []
                         for line in content_obj.get("content", []):
                             for seg in line:
@@ -568,30 +568,30 @@ def collect_messages(
     msg_limit: int,
     config: dict,
 ) -> str:
-    """采集目标用户的所有消息记录（群聊 + 私聊）"""
+    """対象ユーザーの全メッセージ記録を収集する（グループチャット + プライベートチャット）"""
     user_open_id = user.get("open_id") or user.get("user_id", "")
     name = user.get("name", "")
 
     all_messages = []
     chat_sources = []
 
-    # ── 私聊采集（需要 user_access_token + p2p_chat_id）──
+    # ── プライベートチャット収集（user_access_token + p2p_chat_id が必要）──
     p2p_chat_id = config.get("p2p_chat_id", "")
     user_token = config.get("user_access_token", "")
 
     if user_token and p2p_chat_id:
-        print(f"  📱 采集私聊消息（chat_id: {p2p_chat_id}）...", file=sys.stderr)
+        print(f"  📱 プライベートチャットメッセージを収集中（chat_id: {p2p_chat_id}）...", file=sys.stderr)
         p2p_msgs = fetch_p2p_messages(p2p_chat_id, user_open_id, msg_limit, config)
         for m in p2p_msgs:
-            m["chat"] = "私聊"
+            m["chat"] = "プライベートチャット"
         all_messages.extend(p2p_msgs)
-        chat_sources.append(f"私聊（{len(p2p_msgs)} 条）")
-        print(f"    获取 {len(p2p_msgs)} 条私聊消息", file=sys.stderr)
+        chat_sources.append(f"プライベートチャット（{len(p2p_msgs)} 件）")
+        print(f"    {len(p2p_msgs)} 件のプライベートチャットメッセージを取得", file=sys.stderr)
     elif user_token and not p2p_chat_id:
-        print(f"  ⚠️  有 user_access_token 但未配置 p2p_chat_id，跳过私聊采集", file=sys.stderr)
-        print(f"     请在配置中添加 p2p_chat_id（通过发送消息 API 返回值获取）", file=sys.stderr)
+        print(f"  ⚠️  user_access_token はありますが p2p_chat_id が未設定です。プライベートチャット収集をスキップします", file=sys.stderr)
+        print(f"     設定に p2p_chat_id を追加してください（メッセージ送信 API の戻り値から取得できます）", file=sys.stderr)
 
-    # ── 群聊采集（使用 tenant_access_token）──
+    # ── グループチャット収集（tenant_access_token を使用）──
     remaining = msg_limit - len(all_messages)
     if remaining > 0:
         chats = get_chats_with_user(user_open_id, config)
@@ -600,28 +600,28 @@ def collect_messages(
             for chat in chats:
                 chat_id = chat.get("chat_id")
                 chat_name = chat.get("name", chat_id)
-                print(f"  拉取「{chat_name}」消息 ...", file=sys.stderr)
+                print(f"  「{chat_name}」のメッセージを取得中 ...", file=sys.stderr)
 
                 msgs = fetch_messages_from_chat(chat_id, user_open_id, per_chat_limit, config)
                 for m in msgs:
                     m["chat"] = chat_name
                 all_messages.extend(msgs)
-                chat_sources.append(f"{chat_name}（{len(msgs)} 条）")
-                print(f"    获取 {len(msgs)} 条", file=sys.stderr)
+                chat_sources.append(f"{chat_name}（{len(msgs)} 件）")
+                print(f"    {len(msgs)} 件を取得", file=sys.stderr)
 
     if not all_messages:
-        tips = f"# 消息记录\n\n未找到 {name} 的消息记录。\n\n"
-        tips += "可能原因：\n"
-        tips += "  - 群聊采集：bot 未被添加到相关群聊\n"
-        tips += "  - 私聊采集：未配置 user_access_token 或 p2p_chat_id\n"
-        tips += "\n私聊采集配置方法：\n"
-        tips += "  1. 在飞书开放平台开通 im:message 和 im:chat 用户权限\n"
-        tips += "  2. 通过 OAuth 授权获取 user_access_token（--exchange-code）\n"
-        tips += "  3. 配置 p2p_chat_id（私聊会话 ID）\n"
+        tips = f"# メッセージ記録\n\n{name} のメッセージ記録が見つかりませんでした。\n\n"
+        tips += "考えられる原因：\n"
+        tips += "  - グループチャット収集：bot が関連グループチャットに追加されていない\n"
+        tips += "  - プライベートチャット収集：user_access_token または p2p_chat_id が未設定\n"
+        tips += "\nプライベートチャット収集の設定方法：\n"
+        tips += "  1. Feishu オープンプラットフォームで im:message と im:chat のユーザー権限を有効化\n"
+        tips += "  2. OAuth 認可で user_access_token を取得（--exchange-code）\n"
+        tips += "  3. p2p_chat_id（プライベートチャット会話 ID）を設定\n"
         return tips
 
-    # 分类输出
-    # 私聊消息包含双方对话，标注发言人
+    # 分類して出力
+    # プライベートチャットメッセージは双方の会話を含み、発言者を表示
     target_msgs = [m for m in all_messages if m.get("is_target", True)]
     other_msgs = [m for m in all_messages if not m.get("is_target", True)]
 
@@ -629,42 +629,42 @@ def collect_messages(
     short_msgs = [m for m in target_msgs if len(m.get("content", "")) <= 50]
 
     lines = [
-        f"# 飞书消息记录（自动采集）",
-        f"目标：{name}",
-        f"来源：{', '.join(chat_sources)}",
-        f"共 {len(all_messages)} 条消息（目标用户 {len(target_msgs)} 条，对话方 {len(other_msgs)} 条）",
+        f"# Feishu メッセージ記録（自動収集）",
+        f"対象：{name}",
+        f"ソース：{', '.join(chat_sources)}",
+        f"合計 {len(all_messages)} 件のメッセージ（対象ユーザー {len(target_msgs)} 件、相手方 {len(other_msgs)} 件）",
         "",
         "---",
         "",
-        "## 长消息（观点/决策/技术类）",
+        "## 長文メッセージ（意見/意思決定/技術系）",
         "",
     ]
     for m in long_msgs:
         lines.append(f"[{m.get('time', '')}][{m.get('chat', '')}] {m['content']}")
         lines.append("")
 
-    lines += ["---", "", "## 日常消息（风格参考）", ""]
+    lines += ["---", "", "## 日常メッセージ（スタイル参考）", ""]
     for m in short_msgs[:300]:
         lines.append(f"[{m.get('time', '')}] {m['content']}")
 
-    # 私聊对话上下文（保留双方对话，便于理解语境）
-    p2p_msgs = [m for m in all_messages if m.get("chat") == "私聊"]
+    # プライベートチャットの対話コンテキスト（双方の会話を保持し、文脈理解を容易にする）
+    p2p_msgs = [m for m in all_messages if m.get("chat") == "プライベートチャット"]
     if p2p_msgs:
-        lines += ["", "---", "", "## 私聊对话上下文（含双方消息）", ""]
-        # 按时间正序
+        lines += ["", "---", "", "## プライベートチャットの対話コンテキスト（双方のメッセージを含む）", ""]
+        # 時系列順
         p2p_sorted = sorted(p2p_msgs, key=lambda x: x.get("time", ""))
         for m in p2p_sorted[:500]:
-            who = f"[{name}]" if m.get("is_target") else "[对方]"
+            who = f"[{name}]" if m.get("is_target") else "[相手]"
             lines.append(f"[{m.get('time', '')}] {who} {m['content']}")
 
     return "\n".join(lines)
 
 
-# ─── 文档采集 ─────────────────────────────────────────────────────────────────
+# ─── ドキュメント収集 ─────────────────────────────────────────────────────────
 
 def search_docs_by_user(user_open_id: str, name: str, doc_limit: int, config: dict) -> list:
-    """搜索目标用户创建或编辑的文档"""
-    print(f"  搜索 {name} 的文档 ...", file=sys.stderr)
+    """対象ユーザーが作成または編集したドキュメントを検索する"""
+    print(f"  {name} のドキュメントを検索中 ...", file=sys.stderr)
 
     data = api_post(
         "/search/v2/message",
@@ -680,8 +680,8 @@ def search_docs_by_user(user_open_id: str, name: str, doc_limit: int, config: di
     )
 
     if data.get("code") != 0:
-        # fallback：用关键词搜索
-        print(f"  按创建人搜索失败，改用关键词搜索 ...", file=sys.stderr)
+        # fallback：キーワードで検索
+        print(f"  作成者での検索に失敗、キーワード検索に切り替え ...", file=sys.stderr)
         data = api_post(
             "/search/v2/message",
             {
@@ -703,18 +703,18 @@ def search_docs_by_user(user_open_id: str, name: str, doc_limit: int, config: di
                 "creator": doc_info.get("creator", {}).get("name", ""),
             })
 
-    print(f"  找到 {len(docs)} 篇文档", file=sys.stderr)
+    print(f"  {len(docs)} 件のドキュメントが見つかりました", file=sys.stderr)
     return docs
 
 
 def fetch_doc_content(doc_token: str, doc_type: str, config: dict) -> str:
-    """拉取单篇文档内容"""
+    """単一ドキュメントの内容を取得する"""
     if doc_type in ("doc", "docx"):
         data = api_get(f"/docx/v1/documents/{doc_token}/raw_content", {}, config)
         return data.get("data", {}).get("content", "")
 
     elif doc_type == "wiki":
-        # 先获取 wiki node 信息
+        # まず wiki ノード情報を取得
         node_data = api_get(f"/wiki/v2/spaces/get_node", {"token": doc_token}, config)
         obj_token = node_data.get("data", {}).get("node", {}).get("obj_token", doc_token)
         obj_type = node_data.get("data", {}).get("node", {}).get("obj_type", "docx")
@@ -724,28 +724,28 @@ def fetch_doc_content(doc_token: str, doc_type: str, config: dict) -> str:
 
 
 def collect_docs(user: dict, doc_limit: int, config: dict) -> str:
-    """采集目标用户的文档"""
+    """対象ユーザーのドキュメントを収集する"""
     import re
     user_open_id = user.get("open_id") or user.get("user_id", "")
     name = user.get("name", "")
 
     docs = search_docs_by_user(user_open_id, name, doc_limit, config)
     if not docs:
-        return f"# 文档内容\n\n未找到 {name} 相关文档\n"
+        return f"# ドキュメント内容\n\n{name} に関連するドキュメントが見つかりませんでした\n"
 
     lines = [
-        f"# 文档内容（自动采集）",
-        f"目标：{name}",
-        f"共 {len(docs)} 篇",
+        f"# ドキュメント内容（自動収集）",
+        f"対象：{name}",
+        f"合計 {len(docs)} 件",
         "",
     ]
 
     for doc in docs:
         url = doc.get("url", "")
-        title = doc.get("title", "无标题")
+        title = doc.get("title", "無題")
         doc_type = doc.get("type", "")
 
-        print(f"  拉取文档：{title} ...", file=sys.stderr)
+        print(f"  ドキュメントを取得中：{title} ...", file=sys.stderr)
 
         # 从 URL 提取 token
         token_match = re.search(r"/(?:wiki|docx|docs|sheets|base)/([A-Za-z0-9]+)", url)
