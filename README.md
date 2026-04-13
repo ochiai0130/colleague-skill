@@ -2,7 +2,7 @@
 
 # colleague.skill
 
-> *"You AI guys are traitors to the codebase — you've already killed frontend, now you're coming for backend, QA, ops, infosec, chip design, and eventually yourselves and all of humanity"*
+> *「おまえらAI屋はコードベースの裏切り者だ――フロントエンドを殺しておいて、次はバックエンド、QA、運用、セキュリティ、チップ設計、最後には自分たち自身と全人類まで来るつもりか」*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -13,21 +13,21 @@
 
 <br>
 
-Your colleague quit, leaving behind a mountain of unmaintained docs?<br>
-Your intern left, nothing but an empty desk and a half-finished project?<br>
-Your mentor graduated, taking all the context and experience with them?<br>
-Your partner transferred, and the chemistry you built reset to zero overnight?<br>
-Your predecessor handed over, trying to condense three years into three pages?<br>
+同僚が辞めて、メンテされないドキュメントの山だけが残った？<br>
+インターンが去って、空の机と半端なプロジェクトだけが残った？<br>
+メンターが卒業して、コンテキストと経験のすべてを持っていった？<br>
+パートナーが異動して、築いたケミストリーが一夜でリセットされた？<br>
+前任者が引き継いで、3年分を3ページに凝縮しようとした？<br>
 
-**Turn cold goodbyes into warm Skills — welcome to cyber-immortality!**
+**冷たい別れを温かい Skill に変えよう――サイバー不死へようこそ！**
 
 <br>
 
-Provide source materials (Feishu messages, DingTalk docs, Slack messages, emails, screenshots)<br>
-plus your subjective description of the person<br>
-and get an **AI Skill that actually works like them**
+ソース資料（飞书メッセージ、钉钉ドキュメント、Slackメッセージ、メール、スクリーンショット）と<br>
+その人に対するあなたの主観的な説明を提供するだけで<br>
+**実際にその人のように働くAI Skill** が手に入ります
 
-[Supported Sources](#supported-data-sources) · [Install](#install) · [Usage](#usage) · [Demo](#demo) · [Detailed Install](INSTALL.md) · [💬 Discord](https://discord.gg/aRjmJBdK)
+[対応ソース](#対応データソース) · [インストール](#インストール) · [使い方](#使い方) · [デモ](#デモ) · [詳細インストール](INSTALL.md) · [💬 Discord](https://discord.gg/aRjmJBdK)
 
 [**中文**](docs/lang/README_ZH.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**日本語**](docs/lang/README_JA.md) · [**Русский**](docs/lang/README_RU.md) · [**Português**](docs/lang/README_PT.md)
 
@@ -35,67 +35,67 @@ and get an **AI Skill that actually works like them**
 
 ---
 
-> 🆕 **2026.04.13 Update** — **dot-skill Roadmap is live!** colleague.skill is evolving into **dot-skill** — distill anyone, not just colleagues. Multimodal output, skill ecosystems, and more on the way.
+> 🆕 **2026.04.13 アップデート** — **dot-skill ロードマップ公開！** colleague.skill は **dot-skill** へと進化します――同僚だけでなく、誰でも蒸留できるようになります。マルチモーダル出力、Skillエコシステムなど、続々登場予定。
 >
-> 👉 **[Read the full Roadmap](ROADMAP.md)** · **[💬 Discord](https://discord.gg/aRjmJBdK)**
+> 👉 **[ロードマップ全文を読む](ROADMAP.md)** · **[💬 Discord](https://discord.gg/aRjmJBdK)**
 >
-> We've also cleaned up Issues, added Milestones, and set up a [public project board](https://github.com/users/titanwings/projects/1). Community contributions welcome — check `good-first-issue` labels!
+> Issueの整理、マイルストーンの追加、[公開プロジェクトボード](https://github.com/users/titanwings/projects/1)の設置も行いました。コミュニティからの貢献を歓迎します――`good-first-issue` ラベルをチェックしてください！
 
-> 🆕 **2026.04.07 Update** — The community's enthusiasm for dot-skill remixes has been incredible! I've built a community gallery — PRs welcome!
+> 🆕 **2026.04.07 アップデート** — dot-skill リミックスに対するコミュニティの熱意が素晴らしいです！コミュニティギャラリーを構築しました――PR歓迎！
 >
-> Share any skill or meta-skill, and drive traffic directly to your own GitHub repo. No middleman.
+> 任意の Skill やメタ Skill を共有し、あなた自身のGitHubリポジトリに直接トラフィックを誘導できます。仲介者なし。
 >
 > 👉 **[titanwings.github.io/colleague-skill-site](https://titanwings.github.io/colleague-skill-site/)**
 >
-> Now listed: 户晨风.skill · 峰哥亡命天涯.skill · 罗翔.skill and more
+> 現在掲載中: 户晨风.skill · 峰哥亡命天涯.skill · 罗翔.skill など
 
 ---
 
 Created by [@titanwings](https://github.com/titanwings) | Powered by Shanghai AI Lab · AI Safety Center
 
-## Supported Data Sources
+## 対応データソース
 
-> This is still a beta version of colleague.skill — more sources coming soon, stay tuned!
+> これはまだ colleague.skill のベータ版です――対応ソースは今後追加予定です、お楽しみに！
 
-| Source | Messages | Docs / Wiki | Spreadsheets | Notes |
+| ソース | メッセージ | ドキュメント / Wiki | スプレッドシート | 備考 |
 |--------|:--------:|:-----------:|:------------:|-------|
-| Feishu (auto) | ✅ API | ✅ | ✅ | Just enter a name, fully automatic |
-| DingTalk (auto) | ⚠️ Browser | ✅ | ✅ | DingTalk API doesn't support message history |
-| Slack (auto) | ✅ API | — | — | Requires admin to install Bot; free plan limited to 90 days |
-| WeChat chat history | ✅ SQLite | — | — | Currently unstable, recommend using open-source tools below |
-| PDF | — | ✅ | — | Manual upload |
-| Images / Screenshots | ✅ | — | — | Manual upload |
-| Feishu JSON export | ✅ | ✅ | — | Manual upload |
-| Email `.eml` / `.mbox` | ✅ | — | — | Manual upload |
-| Markdown | ✅ | ✅ | — | Manual upload |
-| Paste text directly | ✅ | — | — | Manual input |
+| 飞书（自動） | ✅ API | ✅ | ✅ | 名前を入力するだけで完全自動 |
+| 钉钉（自動） | ⚠️ ブラウザ | ✅ | ✅ | 钉钉APIはメッセージ履歴に対応していません |
+| Slack（自動） | ✅ API | — | — | 管理者によるBot導入が必要。無料プランは90日間の制限あり |
+| WeChatチャット履歴 | ✅ SQLite | — | — | 現在不安定、以下のオープンソースツールの使用を推奨 |
+| PDF | — | ✅ | — | 手動アップロード |
+| 画像 / スクリーンショット | ✅ | — | — | 手動アップロード |
+| 飞书 JSONエクスポート | ✅ | ✅ | — | 手動アップロード |
+| メール `.eml` / `.mbox` | ✅ | — | — | 手動アップロード |
+| Markdown | ✅ | ✅ | — | 手動アップロード |
+| テキスト直接貼り付け | ✅ | — | — | 手動入力 |
 
-### Recommended WeChat Chat Export Tools
+### 推奨WeChatチャットエクスポートツール
 
-These are independent open-source projects — this project does not include their code, but our parsers are compatible with their export formats. WeChat auto-decryption is currently unstable, so we recommend using these open-source tools to export chat history, then paste or import into this project:
+これらは独立したオープンソースプロジェクトです――本プロジェクトにそれらのコードは含まれていませんが、パーサーはそれらのエクスポート形式に対応しています。WeChat自動復号は現在不安定なため、これらのオープンソースツールでチャット履歴をエクスポートし、本プロジェクトに貼り付けまたはインポートすることを推奨します：
 
-| Tool | Platform | Description |
+| ツール | プラットフォーム | 説明 |
 |------|----------|-------------|
-| [WeChatMsg](https://github.com/LC044/WeChatMsg) | Windows | WeChat chat history export, supports multiple formats |
-| [PyWxDump](https://github.com/xaoyaoo/PyWxDump) | Windows | WeChat database decryption & export |
-| [留痕 (Liuhen)](https://github.com/greyovo/留痕) | macOS | WeChat chat history export (recommended for Mac users) |
+| [WeChatMsg](https://github.com/LC044/WeChatMsg) | Windows | WeChatチャット履歴エクスポート、複数形式対応 |
+| [PyWxDump](https://github.com/xaoyaoo/PyWxDump) | Windows | WeChatデータベース復号＆エクスポート |
+| [留痕 (Liuhen)](https://github.com/greyovo/留痕) | macOS | WeChatチャット履歴エクスポート（Macユーザー推奨） |
 
-> Tool recommendations from [@therealXiaomanChu](https://github.com/therealXiaomanChu). Thanks to all the open-source authors — together for cyber-immortality!
+> ツール推薦は [@therealXiaomanChu](https://github.com/therealXiaomanChu) より。すべてのオープンソース作者に感謝――サイバー不死を共に！
 
 ---
 
-## Install
+## インストール
 
 ### Claude Code
 
-> **Important**: Claude Code looks for skills in `.claude/skills/` at the **git repo root**. Make sure you run this in the right place.
+> **重要**: Claude Code は **gitリポジトリルート** の `.claude/skills/` からスキルを探します。正しい場所で実行してください。
 
 ```bash
-# Install to current project (run at git repo root)
+# 現在のプロジェクトにインストール（gitリポジトリルートで実行）
 mkdir -p .claude/skills
 git clone https://github.com/titanwings/colleague-skill .claude/skills/create-colleague
 
-# Or install globally (available in all projects)
+# またはグローバルにインストール（すべてのプロジェクトで利用可能）
 git clone https://github.com/titanwings/colleague-skill ~/.claude/skills/create-colleague
 ```
 
@@ -105,121 +105,121 @@ git clone https://github.com/titanwings/colleague-skill ~/.claude/skills/create-
 git clone https://github.com/titanwings/colleague-skill ~/.openclaw/workspace/skills/create-colleague
 ```
 
-### Dependencies (optional)
+### 依存関係（オプション）
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-> Feishu/DingTalk/Slack auto-collection requires App credentials. See [INSTALL.md](INSTALL.md) for details.
+> 飞书/钉钉/Slack自動収集にはアプリ資格情報が必要です。詳細は [INSTALL.md](INSTALL.md) を参照してください。
 
 ---
 
-## Usage
+## 使い方
 
-In Claude Code, type:
+Claude Code で以下を入力：
 
 ```
 /create-colleague
 ```
 
-Follow the prompts: enter an alias, company/level (e.g. `ByteDance L2-1 backend engineer`), personality tags, then choose a data source. All fields can be skipped — even a description alone can generate a Skill.
+プロンプトに従ってください：エイリアス、会社/レベル（例: `バイトダンス L2-1 バックエンドエンジニア`）、性格タグを入力し、データソースを選択します。すべてのフィールドはスキップ可能です――説明だけでもSkillを生成できます。
 
-Once created, invoke the colleague Skill with `/{slug}`.
+作成後、`/{slug}` で同僚Skillを呼び出せます。
 
-### Commands
+### コマンド
 
-| Command | Description |
+| コマンド | 説明 |
 |---------|-------------|
-| `/list-colleagues` | List all colleague Skills |
-| `/{slug}` | Invoke full Skill (Persona + Work) |
-| `/{slug}-work` | Work capabilities only |
-| `/{slug}-persona` | Persona only |
-| `/colleague-rollback {slug} {version}` | Rollback to a previous version |
-| `/delete-colleague {slug}` | Delete |
+| `/list-colleagues` | すべての同僚Skillを一覧表示 |
+| `/{slug}` | フルSkillを呼び出し（ペルソナ + 業務） |
+| `/{slug}-work` | 業務能力のみ |
+| `/{slug}-persona` | ペルソナのみ |
+| `/colleague-rollback {slug} {version}` | 以前のバージョンにロールバック |
+| `/delete-colleague {slug}` | 削除 |
 
 ---
 
-## Demo
+## デモ
 
-> Input: `ByteDance L2-1 backend engineer, INTJ, blame-shifter, ByteDance-style`
+> 入力: `バイトダンス L2-1 バックエンドエンジニア、INTJ、責任転嫁マン、バイトダンス風`
 
-**Scenario 1: Code Review**
-
-```
-User            ❯ Can you review this API design?
-
-colleague.skill ❯ Hold on — what's the impact? You haven't explained the context.
-                  (after reading) N+1 query, fix it. Use the standard
-                  {code, message, data} response format. That's the spec,
-                  don't ask why.
-```
-
-**Scenario 2: Blame game**
+**シナリオ1: コードレビュー**
 
 ```
-User            ❯ This bug was introduced by you, right?
+User            ❯ このAPI設計をレビューしてもらえますか？
 
-colleague.skill ❯ Does the timeline match? That feature touched multiple places,
-                  there were other changes too.
+colleague.skill ❯ ちょっと待って――影響範囲は？コンテキストの説明がないんだけど。
+                  （読んだ後）N+1クエリ、直して。標準の
+                  {code, message, data} レスポンス形式を使って。それが仕様だから、
+                  理由は聞かないで。
+```
+
+**シナリオ2: 責任のなすりつけ**
+
+```
+User            ❯ このバグ、あなたが入れたんですよね？
+
+colleague.skill ❯ タイムライン合ってる？その機能は複数箇所に影響してて、
+                  他の変更もあったけど。
 ```
 
 ---
 
-## Features
+## 機能
 
-### Generated Skill Structure
+### 生成されるSkillの構造
 
-Each colleague Skill has two parts that work together:
+各同僚Skillは連携する2つのパートで構成されます：
 
-| Part | Content |
+| パート | 内容 |
 |------|---------|
-| **Part A — Work Skill** | Systems, tech standards, workflows, experience |
-| **Part B — Persona** | 5-layer personality: hard rules → identity → expression → decisions → interpersonal |
+| **パートA — 業務Skill** | システム、技術基準、ワークフロー、経験 |
+| **パートB — ペルソナ** | 5層の性格構造：ハードルール → アイデンティティ → 表現 → 意思決定 → 対人関係 |
 
-Execution: `Receive task → Persona decides attitude → Work Skill executes → Output in their voice`
+実行フロー: `タスク受信 → ペルソナが態度を決定 → 業務Skillが実行 → その人の声で出力`
 
-### Supported Tags
+### 対応タグ
 
-**Personality**: Responsible · Blame-shifter · Perfectionist · Good-enough · Procrastinator · PUA master · Office politician · Managing-up expert · Passive-aggressive · Flip-flopper · Quiet · Read-no-reply …
+**性格**: 責任感あり · 責任転嫁 · 完璧主義者 · そこそこ主義 · 先延ばし · PUAマスター · 社内政治家 · 上司アピール達人 · 受動的攻撃 · 二転三転 · 寡黙 · 既読スルー …
 
-**Corporate culture**: ByteDance-style · Alibaba-style · Tencent-style · Huawei-style · Baidu-style · Meituan-style · First-principles · OKR-obsessed · Big-corp-pipeline · Startup-mode
+**企業文化**: バイトダンス風 · アリババ風 · テンセント風 · ファーウェイ風 · バイドゥ風 · 美団風 · 第一原理主義 · OKR重視 · 大企業パイプライン · スタートアップモード
 
-**Levels**: ByteDance 2-1~3-3+ · Alibaba P5~P11 · Tencent T1~T4 · Baidu T5~T9 · Meituan P4~P8 · Huawei 13~21 · NetEase · JD · Xiaomi …
+**レベル**: バイトダンス 2-1~3-3+ · アリババ P5~P11 · テンセント T1~T4 · バイドゥ T5~T9 · 美団 P4~P8 · ファーウェイ 13~21 · NetEase · JD · Xiaomi …
 
-### Evolution
+### 進化
 
-- **Append files** → auto-analyze delta → merge into relevant sections, never overwrite existing conclusions
-- **Conversation correction** → say "he wouldn't do that, he should be xxx" → writes to Correction layer, takes effect immediately
-- **Version control** → auto-archive on every update, rollback to any previous version
+- **ファイル追加** → 差分を自動分析 → 関連セクションにマージ、既存の結論は上書きしない
+- **会話修正** → 「彼はそんなことしない、xxxのはずだ」と言う → 修正レイヤーに書き込み、即座に反映
+- **バージョン管理** → 更新ごとに自動アーカイブ、任意の以前のバージョンにロールバック可能
 
 ---
 
-## Project Structure
+## プロジェクト構造
 
-This project follows the [AgentSkills](https://agentskills.io) open standard. The entire repo is a skill directory:
+このプロジェクトは [AgentSkills](https://agentskills.io) オープンスタンダードに準拠しています。リポジトリ全体がスキルディレクトリです：
 
 ```
 create-colleague/
-├── SKILL.md              # Skill entry point (official frontmatter)
-├── prompts/              # Prompt templates
-│   ├── intake.md         #   Dialogue-based info collection
-│   ├── work_analyzer.md  #   Work capability extraction
-│   ├── persona_analyzer.md #  Personality extraction (with tag translation)
-│   ├── work_builder.md   #   work.md generation template
-│   ├── persona_builder.md #   persona.md 5-layer structure
-│   ├── merger.md         #   Incremental merge logic
-│   └── correction_handler.md # Conversation correction handler
-├── tools/                # Python tools
-│   ├── feishu_auto_collector.py  # Feishu auto-collector
-│   ├── feishu_browser.py         # Feishu browser method
-│   ├── feishu_mcp_client.py      # Feishu MCP method
-│   ├── dingtalk_auto_collector.py # DingTalk auto-collector
-│   ├── slack_auto_collector.py   # Slack auto-collector
-│   ├── email_parser.py           # Email parser
-│   ├── skill_writer.py           # Skill file management
-│   └── version_manager.py        # Version archive & rollback
-├── colleagues/           # Generated colleague Skills (gitignored)
+├── SKILL.md              # Skillエントリポイント（公式フロントマター）
+├── prompts/              # プロンプトテンプレート
+│   ├── intake.md         #   対話ベースの情報収集
+│   ├── work_analyzer.md  #   業務能力の抽出
+│   ├── persona_analyzer.md #  性格の抽出（タグ翻訳付き）
+│   ├── work_builder.md   #   work.md 生成テンプレート
+│   ├── persona_builder.md #   persona.md 5層構造
+│   ├── merger.md         #   インクリメンタルマージロジック
+│   └── correction_handler.md # 会話修正ハンドラ
+├── tools/                # Pythonツール
+│   ├── feishu_auto_collector.py  # 飞书自動収集
+│   ├── feishu_browser.py         # 飞书ブラウザ方式
+│   ├── feishu_mcp_client.py      # 飞书 MCP方式
+│   ├── dingtalk_auto_collector.py # 钉钉自動収集
+│   ├── slack_auto_collector.py   # Slack自動収集
+│   ├── email_parser.py           # メールパーサー
+│   ├── skill_writer.py           # Skillファイル管理
+│   └── version_manager.py        # バージョンアーカイブ＆ロールバック
+├── colleagues/           # 生成された同僚Skill（gitignore対象）
 ├── docs/PRD.md
 ├── requirements.txt
 └── LICENSE
@@ -227,19 +227,19 @@ create-colleague/
 
 ---
 
-## Notes
+## 注意事項
 
-- **Source material quality = Skill quality**: chat logs + long docs > manual description only
-- Prioritize collecting: long-form writing **by them** > **decision-making replies** > casual messages
-- Feishu auto-collection requires adding the App bot to relevant group chats
-- This is still a demo version — please file issues if you find bugs!
+- **ソース資料の質 = Skillの質**: チャットログ + 長文ドキュメント > 手動説明のみ
+- 優先して収集すべきもの: **本人が書いた** 長文 > **意思決定の返信** > カジュアルなメッセージ
+- 飞书自動収集にはアプリBotを関連グループチャットに追加する必要があります
+- これはまだデモ版です――バグを見つけたらIssueを立ててください！
 
 ---
-### 📄 Technical Report
+### 📄 技術レポート
 
-> **[Colleague.Skill: Automated AI Skill Generation via Expert Knowledge Distillation](colleague_skill.pdf)**
+> **[Colleague.Skill: エキスパート知識蒸留による自動AIスキル生成](colleague_skill.pdf)**
 >
-> We wrote a paper detailing the system design of colleague.skill — the two-part architecture (Work Skill + Persona), multi-source data collection, Skill generation & evolution mechanisms, and evaluation results in real-world scenarios. Check it out if you're interested!
+> colleague.skill のシステム設計を詳述した論文を執筆しました――2パート構成（業務Skill + ペルソナ）、マルチソースデータ収集、Skill生成＆進化メカニズム、実世界シナリオでの評価結果について記載しています。興味があればぜひご覧ください！
 
 ---
 
